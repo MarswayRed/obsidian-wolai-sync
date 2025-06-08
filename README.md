@@ -1,94 +1,242 @@
-# Obsidian Sample Plugin
+# Obsidian Wolai 同步插件
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+一个功能强大的 Obsidian 插件，用于在 Obsidian 笔记和 Wolai 我来数据库之间进行双向同步。支持富文本格式、多种块类型，并提供智能的同步状态管理。
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## ✨ 功能特性
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+- **🔄 双向同步**: 支持 Obsidian → Wolai 和 Wolai → Obsidian 的双向内容同步
+- **📝 富文本支持**: 完整支持粗体、斜体、行内代码、删除线、链接等 Markdown 格式
+- **🧱 多种块类型**: 支持标题、段落、列表、代码块、引用、分割线等常见 Markdown 元素
+- **📊 状态管理**: 基于 FrontMatter 的智能同步状态跟踪，避免重复同步
+- **📈 API 统计**: 实时监控 API 调用次数，防止超出 Wolai API 限制
+- **⚡ 手动触发**: 精确控制同步时机，避免不必要的 API 调用
+- **👀 文件监听**: 可选的文件变化监听功能（默认关闭）
+- **🔧 灵活配置**: 丰富的配置选项，适应不同使用场景
 
-## First time developing plugins?
+## 📋 安装方法
 
-Quick starting guide for new plugin devs:
+### 方法一：手动安装（推荐）
+1. 下载插件文件到本地
+2. 将整个插件文件夹复制到你的 Obsidian 库目录下的 `.obsidian/plugins/obsidian-wolai-sync/` 
+3. 重启 Obsidian
+4. 在 Obsidian 设置 → 社区插件中启用 "Wolai Sync" 插件
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### 方法二：开发者安装
+1. 克隆或下载此仓库
+2. 在项目目录中运行 `npm install` 安装依赖
+3. 运行 `npm run build` 构建插件
+4. 将生成的 `main.js`、`manifest.json`、`styles.css` 复制到 `.obsidian/plugins/obsidian-wolai-sync/`
 
-## Releasing new releases
+## 🎯 适用场景
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### 理想使用场景
+- **知识管理系统**: 将 Obsidian 中的笔记同步到 Wolai 进行团队协作
+- **内容发布工作流**: 在 Obsidian 中编写文档，自动同步到 Wolai 进行发布
+- **双向数据备份**: 确保重要内容在两个平台上都有备份
+- **团队协作**: Obsidian 中个人编辑，Wolai 中团队共享和讨论
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+### Wolai 数据库要求
 
-## Adding your plugin to the community plugin list
+你的 Wolai 数据库**必须**包含以下字段：
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+| 字段名 | 类型 | 必需 | 说明 |
+|--------|------|------|------|
+| 标题 | 文本 | ✅ | 对应 Obsidian 文件的标题 |
+| 同步状态 | 单选 | ✅ | 值包括：Synced, Pending |
 
-## How to use
+**同步状态字段的选项设置**:
+- `Synced`: 已成功同步
+- `Pending`: 等待同步
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+## ⚙️ 配置说明
 
-## Manually installing the plugin
+### 1. Wolai API 设置
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+首先需要在 [Wolai 开发者中心](https://www.wolai.com/developers) 创建应用：
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+1. 访问 Wolai 开发者中心
+2. 创建新应用
+3. 获取 **App ID** 和 **App Secret**
+4. 将应用连接到你的 Wolai 工作区
 
-## Funding URL
+在插件设置中填入：
+- **数据库 ID**: 从 Wolai 数据库 URL 中获取（如 `https://www.wolai.com/your-workspace/database-id` 中的 `database-id`）
+- **App ID**: 从开发者中心获取的应用 ID
+- **App Secret**: 从开发者中心获取的应用密钥
 
-You can include funding URLs where people who use your plugin can financially support it.
+### 2. Obsidian 设置
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+- **同步文件夹**: 指定要同步的 Obsidian 文件夹路径（例如：`Notes/Wolai`）
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+### 3. 同步设置
+
+- **启用文件监听器**: 默认关闭，开启后会自动监听文件变化
+- **自动同步**: 定时自动同步功能
+- **同步间隔**: 自动同步的时间间隔（5-120分钟）
+
+## 🚀 使用方法
+
+### Obsidian → Wolai 同步
+
+#### 方法一：手动同步（推荐）
+1. 在同步文件夹中创建或编辑 Markdown 文件
+2. 使用命令面板（Ctrl/Cmd + P）搜索 "Wolai"
+3. 选择以下命令之一：
+   - **"同步当前文件到 Wolai"**: 仅同步当前打开的文件
+   - **"同步所有文件到 Wolai"**: 同步所有待同步的文件
+4. 插件会自动为文件添加 FrontMatter 并设置同步状态
+
+#### 方法二：文件监听（可选）
+1. 在插件设置中启用 "文件监听器"
+2. 文件修改保存后会自动标记为需要同步
+3. 定期手动触发同步或启用自动同步
+
+### Wolai → Obsidian 同步
+
+1. 在 Wolai 数据库中找到要同步的行
+2. 将该行的 "同步状态" 字段设置为 **"Wait For Syncing"**
+3. 在 Obsidian 中使用命令 "从 Wolai 同步到 Obsidian"
+4. 插件会自动创建或更新对应的 Obsidian 文件
+
+### 同步状态说明
+
+插件通过文件的 FrontMatter 管理同步状态：
+
+```yaml
+---
+sync_status: Synced
+wolai_id: "page_id_from_wolai"
+last_sync: "2024-01-15T10:30:00.000Z"
+---
 ```
 
-If you have multiple URLs, you can also do:
+状态含义：
+- `Pending`: 新文件，待首次同步到 Wolai
+- `Modified`: 文件已修改，需要重新同步到 Wolai  
+- `Synced`: 已成功同步，无需重复操作
+- `Wait For Syncing`: Wolai 中标记需要同步到 Obsidian
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+## 🔧 为什么设计为手动同步？
+
+### Wolai API 调用限制
+
+基于 Wolai OpenAPI 的以下限制，我们采用了手动同步的设计：
+
+#### 1. 频率限制
+- Wolai API 对调用频率有严格限制
+- 过于频繁的自动同步可能导致 API 调用被限制
+- 手动触发可以精确控制同步时机
+
+#### 2. 批量限制  
+- **创建块**: 单次最多创建 20 个块
+- **插入数据**: 单次最多插入 20 行数据
+- **分页查询**: 单次最多返回 200 条记录
+
+#### 3. Token 管理
+- API Token 需要定期刷新
+- 不当的频繁调用可能导致认证失败
+- 手动同步降低了 Token 管理的复杂性
+
+#### 4. 成本考虑
+- API 调用可能产生费用（根据 Wolai 的定价策略）
+- 避免不必要的自动同步可以控制成本
+- 用户可以选择性地同步重要内容
+
+### 设计优势
+
+1. **精确控制**: 用户完全掌控何时同步什么内容
+2. **避免冲突**: 减少同时编辑导致的同步冲突
+3. **节省配额**: 避免浪费 API 调用次数
+4. **稳定可靠**: 减少因网络问题导致的同步失败
+5. **调试友好**: 便于排查同步问题和错误
+
+## 📊 API 使用统计
+
+插件内置 API 调用统计功能：
+
+- **今日调用**: 显示当天的 API 调用次数
+- **总调用数**: 显示累计 API 调用次数  
+- **重置功能**: 可以手动重置统计数据
+- **实时更新**: 每次 API 调用后自动更新计数
+
+建议将每日 API 调用控制在合理范围内，避免超出 Wolai 的限制。
+
+## 🛠️ 支持的 Markdown 语法
+
+### 文本格式
+- **粗体文本**: `**粗体**` 或 `__粗体__`
+- *斜体文本*: `*斜体*` 或 `_斜体_`
+- `行内代码`: `` `代码` ``
+- ~~删除线~~: `~~删除线~~`
+- [链接](https://example.com): `[链接文本](URL)`
+
+### 块级元素
+- 标题: `#` 到 `######`
+- 无序列表: `- 项目` 或 `* 项目`
+- 有序列表: `1. 项目`
+- 代码块: ````代码块````
+- 引用: `> 引用内容`
+- 分割线: `---` 或 `***`
+
+### 富文本混合
+支持在同一段落中混合多种格式：
+```markdown
+这是一个包含 **粗体**、*斜体*、`代码` 和 [链接](https://example.com) 的段落。
 ```
 
-## API Documentation
+## ❗ 注意事项
 
-See https://github.com/obsidianmd/obsidian-api
+1. **数据备份**: 同步前请确保重要数据已备份
+2. **网络连接**: 确保网络连接稳定，避免同步中断
+3. **配置检查**: 首次使用前请使用 "测试连接" 功能验证配置
+4. **文件格式**: 确保文件是标准的 Markdown 格式
+5. **权限设置**: 确保 Wolai 应用有访问目标数据库的权限
+6. **并发编辑**: 避免在同步过程中同时编辑文件
+7. **特殊字符**: 某些特殊字符可能需要转义处理
+
+## 🐛 故障排除
+
+### 常见问题
+
+#### 1. 连接失败
+- 检查 App ID 和 App Secret 是否正确
+- 确认应用已连接到 Wolai 工作区
+- 验证网络连接是否正常
+
+#### 2. 同步失败
+- 查看 Obsidian 开发者控制台（Ctrl+Shift+I）的错误信息
+- 检查 Wolai 数据库字段是否完整
+- 确认文件的 FrontMatter 格式正确
+
+#### 3. 重复同步
+- 检查文件的 `sync_status` 字段值
+- 确认 Wolai 数据库中的同步状态设置
+- 重置 API 统计后重新尝试
+
+#### 4. 格式问题
+- 确保 Markdown 文件格式标准
+- 检查特殊字符是否正确转义
+- 验证文件编码为 UTF-8
+
+### 获取帮助
+
+如果遇到问题：
+1. 查看 Obsidian 控制台的详细错误信息
+2. 检查插件设置是否正确配置
+3. 尝试使用 "测试连接" 功能
+4. 查看 [Wolai API 文档](https://www.wolai.com/developers) 获取最新信息
+
+## 📄 许可证
+
+本项目使用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request 来改进这个插件！
+
+---
+
+**开发者**: Li Wei  
+**主页**: https://marsway.red  
+**版本**: 1.0.0  
+**兼容性**: Obsidian 0.15.0+
